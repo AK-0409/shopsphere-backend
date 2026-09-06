@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.shopsphere.dto.UserRegistrationRequest;
+import com.shopsphere.dto.UserResponse;
 import com.shopsphere.service.UserService;
 
 import jakarta.validation.Valid;
@@ -23,10 +24,10 @@ public class UserController {
 	
 	}
 	@PostMapping("/register")
-	public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegistrationRequest request )
+	public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRegistrationRequest request )
 	{
-		userService.registerUser(request);
-		return ResponseEntity.status(HttpStatus.CREATED).body("User Registeerd Successfully");
+		UserResponse response = userService.registerUser(request);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 	
 }

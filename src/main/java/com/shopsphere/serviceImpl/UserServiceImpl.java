@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 import com.shopsphere.dto.UserRegistrationRequest;
+import com.shopsphere.dto.UserResponse;
 import com.shopsphere.entity.User;
 import com.shopsphere.enums.AccountStatus;
 import com.shopsphere.enums.Role;
@@ -23,7 +24,7 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void registerUser(UserRegistrationRequest request) {
+	public UserResponse registerUser(UserRegistrationRequest request) {
 		
 		
 		
@@ -46,8 +47,19 @@ public class UserServiceImpl implements UserService{
 		user.setCreatedAt(now);
 		user.setUpdatedAt(now);
 		
-		userRepository.saveAndFlush(user);
+		User savedUser= userRepository.saveAndFlush(user);
 		
+		UserResponse userResponse = new UserResponse();
+		
+		userResponse.setUserId(savedUser.getUserId());
+		userResponse.setUserEmail(savedUser.getUserEmail());
+		userResponse.setUserFirstName(savedUser.getUserFirstName());
+		userResponse.setUserSecondName(savedUser.getUserSecondName());
+		userResponse.setUserPhoneNumber(savedUser.getUserPhoneNumber());
+		userResponse.setUserAddress(savedUser.getUserAddress());
+		userResponse.setMessage("User Registered Successfully");
+		
+		return userResponse;
 		
 		
 	}

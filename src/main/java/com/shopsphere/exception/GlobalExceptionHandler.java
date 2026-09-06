@@ -13,5 +13,10 @@ public class GlobalExceptionHandler {
 	{
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
 	}
-
+	
+	@ExceptionHandler(CategoryAlreadyExistsException.class)
+	public ResponseEntity<String> handleCategoryAlreadyExistsException(CategoryAlreadyExistsException exception)
+	{
+		 return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+	}
 }
