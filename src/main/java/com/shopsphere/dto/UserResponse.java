@@ -9,21 +9,19 @@ public class UserResponse {
     private String userSecondName;
     private String userEmail;
     private String userPhoneNumber;
-    private String userAddress;
     private String message;
 	public UserResponse() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 	public UserResponse(UUID userId, String userFirstName, String userSecondName, String userEmail,
-			String userPhoneNumber, String userAddress, String message) {
+			String userPhoneNumber, String message) {
 		super();
 		this.userId = userId;
 		this.userFirstName = userFirstName;
 		this.userSecondName = userSecondName;
 		this.userEmail = userEmail;
 		this.userPhoneNumber = userPhoneNumber;
-		this.userAddress = userAddress;
 		this.message = message;
 	}
 	public UUID getUserId() {
@@ -56,12 +54,6 @@ public class UserResponse {
 	public void setUserPhoneNumber(String userPhoneNumber) {
 		this.userPhoneNumber = userPhoneNumber;
 	}
-	public String getUserAddress() {
-		return userAddress;
-	}
-	public void setUserAddress(String userAddress) {
-		this.userAddress = userAddress;
-	}
 	public String getMessage() {
 		return message;
 	}
@@ -72,7 +64,7 @@ public class UserResponse {
 	public String toString() {
 		return "UserResponse [userId=" + userId + ", userFirstName=" + userFirstName + ", userSecondName="
 				+ userSecondName + ", userEmail=" + userEmail + ", userPhoneNumber=" + userPhoneNumber
-				+ ", userAddress=" + userAddress + ", message=" + message + "]";
+				+  ", message=" + message + "]";
 	}
     
     
