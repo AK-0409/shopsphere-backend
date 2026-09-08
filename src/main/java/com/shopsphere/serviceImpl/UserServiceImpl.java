@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.shopsphere.dto.UserRegistrationRequest;
@@ -20,17 +21,17 @@ import com.shopsphere.service.UserService;
 public class UserServiceImpl implements UserService{
 	
 	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 		
-	public UserServiceImpl (UserRepository userRepository)
+	public UserServiceImpl (UserRepository userRepository , PasswordEncoder passwordEncoder)
 	{
 		this.userRepository=userRepository;
+		this.passwordEncoder=passwordEncoder;
 	}
 
 	@Override
 	public UserResponse registerUser(UserRegistrationRequest request) {
-		
-		
-		
+				
 		if(userRepository.existsByUserEmail(request.getUserEmail()))
 		{
 			throw new UserAlreadyExistsException("Email already registered");
@@ -40,7 +41,8 @@ public class UserServiceImpl implements UserService{
 		user.setUserFirstName(request.getUserFirstName());
 		user.setUserSecondName(request.getUserSecondName());
 		user.setUserEmail(request.getUserEmail());
-		user.setUserPassword(request.getUserPassword());
+		String encodedPassword = passwordEncoder.encode(request.getUserPassword());
+		user.setUserPassword(encodedPassword);		
 		user.setUserPhoneNumber(request.getUserPhoneNumber());
 		user.setUserRole(Role.USER);
 		user.setUserAccountStatus(AccountStatus.ACTIVE);
@@ -49,7 +51,7 @@ public class UserServiceImpl implements UserService{
 		user.setCreatedBy(null);
 		user.setUpdatedBy(null);
 		
-		User savedUser= userRepository.saveAndFlush(user);
+		User savedUser= userRepository.save(user);
 		
 		UserResponse userResponse = new UserResponse();
 		

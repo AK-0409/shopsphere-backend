@@ -6,11 +6,11 @@ import com.shopsphere.enums.AddressType;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user_addresses")
+@Table(name = "userAddresses")
 public class UserAddress {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String fullName;
     private String phoneNumber;
