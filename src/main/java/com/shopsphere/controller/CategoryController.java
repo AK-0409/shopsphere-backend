@@ -1,7 +1,10 @@
 package com.shopsphere.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +33,15 @@ public class CategoryController {
 	{
 		response = categoryService.addCategory(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+	
+	@GetMapping
+	public ResponseEntity<List<CategoryResponse>> getAllCategories() {
+
+	    List<CategoryResponse> response =
+	            categoryService.getAllCategories();
+
+	    return ResponseEntity.ok(response);
 	}
 
 }

@@ -2,6 +2,7 @@ package com.shopsphere.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -18,16 +19,19 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     
 
     public SecurityConfig(
             UserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder,
-            JwtAuthenticationFilter jwtAuthenticationFilter) {
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            JwtAuthenticationEntryPoint authenticationEntryPoint) {
 
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Bean
@@ -41,13 +45,35 @@ public class SecurityConfig {
                     SessionCreationPolicy.STATELESS
                 )
             )
+            .exceptionHandling(exception ->
+            exception.authenticationEntryPoint(authenticationEntryPoint)
+            		)
             .authorizeHttpRequests(auth -> auth
+
             	    .requestMatchers(
             	        "/api/users/register",
             	        "/api/auth/login"
             	    ).permitAll()
 
             	    .requestMatchers("/api/admin/**")
+            	    .hasRole("ADMIN")
+
+            	    .requestMatchers(
+            	        HttpMethod.POST,
+            	        "/api/products/**"
+            	    )
+            	    .hasRole("ADMIN")
+
+            	    .requestMatchers(
+            	        HttpMethod.PATCH,
+            	        "/api/products/**"
+            	    )
+            	    .hasRole("ADMIN")
+
+            	    .requestMatchers(
+            	        HttpMethod.POST,
+            	        "/api/categories/**"
+            	    )
             	    .hasRole("ADMIN")
 
             	    .anyRequest()

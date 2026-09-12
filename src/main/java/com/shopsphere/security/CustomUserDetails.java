@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.shopsphere.entity.User;
+import com.shopsphere.enums.AccountStatus;
 
 public class CustomUserDetails implements UserDetails {
 
@@ -54,6 +55,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.getUserAccountStatus() == AccountStatus.ACTIVE;
     }
 }

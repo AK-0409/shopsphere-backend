@@ -10,11 +10,14 @@ import com.shopsphere.security.CustomUserDetails;
 import com.shopsphere.service.CustomUserDetailsService;
 
 @Service
-public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
+public class CustomUserDetailsServiceImpl
+        implements CustomUserDetailsService {
 
     private final UserRepository userRepository;
 
-    public CustomUserDetailsServiceImpl(UserRepository userRepository) {
+    public CustomUserDetailsServiceImpl(
+            UserRepository userRepository) {
+
         this.userRepository = userRepository;
     }
 
@@ -22,7 +25,8 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
 
-        User user = userRepository.findByUserEmail(username)
+        User user = userRepository
+                .findByUserEmail(username)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
                                 "User not found with email: " + username
