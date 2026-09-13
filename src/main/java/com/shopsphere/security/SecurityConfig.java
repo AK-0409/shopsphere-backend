@@ -75,6 +75,18 @@ public class SecurityConfig {
             	        "/api/categories/**"
             	    )
             	    .hasRole("ADMIN")
+            	    
+            	    .requestMatchers(
+            	    	HttpMethod.GET,
+            	    	"/api/users"
+            	    	)
+            	    	.hasRole("ADMIN")
+            	    	
+            	    	.requestMatchers(
+            	    		    HttpMethod.GET,
+            	    		    "/api/products/**",
+            	    		    "/api/categories/**"
+            	    		).permitAll()
 
             	    .anyRequest()
             	    .authenticated()

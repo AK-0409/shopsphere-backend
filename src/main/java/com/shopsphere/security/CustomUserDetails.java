@@ -2,6 +2,7 @@ package com.shopsphere.security;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -53,6 +54,9 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 
+    public UUID getUserId() {
+        return user.getUserId();
+    }
     @Override
     public boolean isEnabled() {
         return user.getUserAccountStatus() == AccountStatus.ACTIVE;
