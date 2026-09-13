@@ -1,3 +1,4 @@
+
 package com.shopsphere.security;
 
 import java.io.IOException;
@@ -5,10 +6,9 @@ import java.io.IOException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.shopsphere.service.CustomUserDetailsService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,68 +17,53 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-	
-	 private final JwtService jwtService;
-	 private final CustomUserDetailsService userDetailsService;
 
-	    public JwtAuthenticationFilter(
-	            JwtService jwtService,
-	            CustomUserDetailsService userDetailsService
-) {
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
-	        this.jwtService = jwtService;
-	        this.userDetailsService = userDetailsService;
+    public JwtAuthenticationFilter(
+            JwtService jwtService,
+            UserDetailsService userDetailsService) {
 
-	    }
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
+    }
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-		
-		
-		
-	    String authHeader = request.getHeader("Authorization");
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
+            throws ServletException, IOException {
 
-	    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-	        filterChain.doFilter(request, response);
-	        return;
-	    }
+        String authHeader =
+                request.getHeader("Authorization");
 
-	    String token = authHeader.substring(7);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 
-	    try {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-	        if (!jwtService.isTokenValid(token)) {
-	            filterChain.doFilter(request, response);
-	            return;
-	        }
+        String token = authHeader.substring(7);
+        if (jwtService.isRefreshToken(token)) {
 
-	        String username = jwtService.extractUsername(token);
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-	        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (jwtService.isTokenValid(token)) {
 
-	            UserDetails userDetails =
-	                    userDetailsService.loadUserByUsername(username);
+            String username = jwtService.extractUsername(token);
 
-	            UsernamePasswordAuthenticationToken authentication =
-	                    new UsernamePasswordAuthenticationToken(
-	                            userDetails,
-	                            null,
-	                            userDetails.getAuthorities()
-	                    );
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-	            SecurityContextHolder.getContext()
-	                    .setAuthentication(authentication);
-	           
-	        }
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken( userDetails, null, userDetails.getAuthorities() );
 
-	    } catch (Exception e) {
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
 
-	        SecurityContextHolder.clearContext();
-	    }
-
-	    filterChain.doFilter(request, response);
-
-	}
-
+        filterChain.doFilter(request, response);
+    }
 }
