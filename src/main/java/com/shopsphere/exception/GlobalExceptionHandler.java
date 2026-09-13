@@ -88,17 +88,20 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<String> handleAddressNotFoundException(
 	        AddressNotFoundException exception) {
 
-	    return ResponseEntity
-	            .status(HttpStatus.NOT_FOUND)
-	            .body(exception.getMessage());
+	    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
 	}
 	
 	@ExceptionHandler(AddressAccessDeniedException.class)
 	public ResponseEntity<String> handleAddressAccessDenied(
 	        AddressAccessDeniedException exception) {
 
-	    return ResponseEntity
-	            .status(HttpStatus.FORBIDDEN)
-	            .body(exception.getMessage());
+	    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
+	}
+	
+	@ExceptionHandler(CartOperationException.class)
+	public ResponseEntity<String> handleCartOperationException(
+	        CartOperationException exception) {
+
+	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
 	}
 }
