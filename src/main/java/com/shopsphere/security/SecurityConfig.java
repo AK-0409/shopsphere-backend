@@ -38,9 +38,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
 
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session ->
+    	http
+        .csrf(csrf -> csrf.disable())
+        .cors(cors -> {})
+        .sessionManagement(session ->
                 session.sessionCreationPolicy(
                     SessionCreationPolicy.STATELESS
                 )
@@ -50,10 +51,11 @@ public class SecurityConfig {
             		)
             .authorizeHttpRequests(auth -> auth
 
-            	    .requestMatchers(
-            	        "/api/users/register",
-            	        "/api/auth/login"
-            	    ).permitAll()
+            		.requestMatchers(
+            			    "/api/users/register",
+            			    "/api/auth/login",
+            			    "/api/auth/refresh"
+            			).permitAll()
 
             	    .requestMatchers("/api/admin/**")
             	    .hasRole("ADMIN")

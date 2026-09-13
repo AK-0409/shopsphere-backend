@@ -46,4 +46,11 @@ public class CartResponse {
     public void setCartTotal(BigDecimal cartTotal) {
         this.cartTotal = cartTotal;
     }
+
+	@Override
+	public String toString() {
+		return "CartResponse [cartId=" + cartId + ", items=" + items + ", cartTotal=" + cartTotal + "]";
+	}
+    
+    
 }

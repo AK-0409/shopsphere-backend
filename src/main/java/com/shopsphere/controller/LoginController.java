@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shopsphere.dto.LoginRequest;
 import com.shopsphere.dto.LoginResponse;
+import com.shopsphere.dto.RefreshTokenRequest;
 import com.shopsphere.service.LoginService;
 
 import jakarta.validation.Valid;
@@ -30,5 +31,15 @@ public class LoginController {
         LoginResponse response = loginService.login(request);
 
         return ResponseEntity.status(HttpStatus.OK) .body(response);
+    }
+    
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refreshToken(
+            @RequestBody RefreshTokenRequest request) {
+
+        LoginResponse response =
+                loginService.refreshToken(request.getRefreshToken());
+
+        return ResponseEntity.ok(response);
     }
 }

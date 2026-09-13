@@ -3,40 +3,29 @@ package com.shopsphere.dto;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public class CartItemResponse {
+public class OrderItemResponse {
 
-    private UUID cartItemId;
     private UUID productId;
     private String productName;
-    private BigDecimal productPrice;
     private Integer quantity;
+    private BigDecimal priceAtPurchase;
     private BigDecimal itemTotal;
 
-    public CartItemResponse() {
+    public OrderItemResponse() {
     }
 
-    public CartItemResponse(
-            UUID cartItemId,
+    public OrderItemResponse(
             UUID productId,
             String productName,
-            BigDecimal productPrice,
             Integer quantity,
+            BigDecimal priceAtPurchase,
             BigDecimal itemTotal) {
 
-        this.cartItemId = cartItemId;
         this.productId = productId;
         this.productName = productName;
-        this.productPrice = productPrice;
         this.quantity = quantity;
+        this.priceAtPurchase = priceAtPurchase;
         this.itemTotal = itemTotal;
-    }
-
-    public UUID getCartItemId() {
-        return cartItemId;
-    }
-
-    public void setCartItemId(UUID cartItemId) {
-        this.cartItemId = cartItemId;
     }
 
     public UUID getProductId() {
@@ -55,20 +44,20 @@ public class CartItemResponse {
         this.productName = productName;
     }
 
-    public BigDecimal getProductPrice() {
-        return productPrice;
-    }
-
-    public void setProductPrice(BigDecimal productPrice) {
-        this.productPrice = productPrice;
-    }
-
     public Integer getQuantity() {
         return quantity;
     }
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public BigDecimal getPriceAtPurchase() {
+        return priceAtPurchase;
+    }
+
+    public void setPriceAtPurchase(BigDecimal priceAtPurchase) {
+        this.priceAtPurchase = priceAtPurchase;
     }
 
     public BigDecimal getItemTotal() {
@@ -78,13 +67,4 @@ public class CartItemResponse {
     public void setItemTotal(BigDecimal itemTotal) {
         this.itemTotal = itemTotal;
     }
-
-	@Override
-	public String toString() {
-		return "CartItemResponse [cartItemId=" + cartItemId + ", productId=" + productId + ", productName="
-				+ productName + ", productPrice=" + productPrice + ", quantity=" + quantity + ", itemTotal=" + itemTotal
-				+ "]";
-	}
-    
-    
 }

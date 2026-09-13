@@ -38,13 +38,18 @@ public class LoginServiceImpl implements LoginService {
                             )
                     );
 
-            String token = jwtService.generateToken(
+            String accessToken = jwtService.generateAccessToken(
+                    authentication.getName()
+            );
+
+            String refreshToken = jwtService.generateRefreshToken(
                     authentication.getName()
             );
 
             return new LoginResponse(
                     "Login successful",
-                    token
+                    accessToken,
+                    refreshToken
             );
 
         } catch (AuthenticationException e) {
@@ -53,5 +58,28 @@ public class LoginServiceImpl implements LoginService {
                     "Invalid email or password"
             );
         }
+    }
+    
+    @Override
+    public LoginResponse refreshToken(String refreshToken) {
+
+        if (!jwtService.isTokenValid(refreshToken)
+                || !jwtService.isRefreshToken(refreshToken)) {
+
+            throw new InvalidCredentialsException(
+                    "Invalid or expired refresh token"
+            );
+        }
+
+        String username = jwtService.extractUsername(refreshToken);
+
+        String newAccessToken =
+                jwtService.generateAccessToken(username);
+
+        return new LoginResponse(
+                "Access token refreshed successfully",
+                newAccessToken,
+                refreshToken
+        );
     }
 }

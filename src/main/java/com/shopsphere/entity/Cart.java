@@ -55,4 +55,12 @@ public class Cart {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+	@Override
+	public String toString() {
+		return "Cart [cartId=" + cartId + ", user=" + user + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt
+				+ "]";
+	}
+    
+    
 }

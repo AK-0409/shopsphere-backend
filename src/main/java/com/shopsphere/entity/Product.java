@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "products")
@@ -36,6 +37,9 @@ public class Product {
 
     @Column(nullable = false)
     private Integer productStock;
+    
+    @Version
+    private Long version;
 
     private String productImageUrl;
 
@@ -115,6 +119,14 @@ public class Product {
 
 	public void setProductStock(Integer productStock) {
 		this.productStock = productStock;
+	}
+	
+	public Long getVersion() {
+		return version;
+	}
+
+	public void setVersion(Long version) {
+		this.version = version;
 	}
 
 	public String getProductImageUrl() {

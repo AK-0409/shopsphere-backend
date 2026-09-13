@@ -16,21 +16,18 @@ public class UserRegistrationRequest {
 	private String userPassword;
 	@NotBlank
 	private String userPhoneNumber;
-	@NotBlank
-	private String userAddress;
 	public UserRegistrationRequest() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 	public UserRegistrationRequest(String userFirstName, String userSecondName, String userEmail, String userPassword,
-			String userPhoneNumber, String userAddress) {
+			String userPhoneNumber) {
 		super();
 		this.userFirstName = userFirstName;
 		this.userSecondName = userSecondName;
 		this.userEmail = userEmail;
 		this.userPassword = userPassword;
 		this.userPhoneNumber = userPhoneNumber;
-		this.userAddress = userAddress;
 	}
 	public String getUserFirstName() {
 		return userFirstName;
@@ -62,17 +59,12 @@ public class UserRegistrationRequest {
 	public void setUserPhoneNumber(String userPhoneNumber) {
 		this.userPhoneNumber = userPhoneNumber;
 	}
-	public String getUserAddress() {
-		return userAddress;
-	}
-	public void setUserAddress(String userAddress) {
-		this.userAddress = userAddress;
-	}
+	
 	@Override
 	public String toString() {
 		return "UserRegistrationRequest [userFirstName=" + userFirstName + ", userSecondName=" + userSecondName
 				+ ", userEmail=" + userEmail + ", userPhoneNumber=" + userPhoneNumber
-				+ ", userAddress=" + userAddress + "]";
+				+ "]";
 	}
 	
 	

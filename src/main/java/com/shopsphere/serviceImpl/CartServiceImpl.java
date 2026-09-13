@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.shopsphere.dto.CartItemResponse;
 import com.shopsphere.dto.CartResponse;
@@ -23,8 +24,6 @@ import com.shopsphere.repository.ProductRepository;
 import com.shopsphere.repository.UserRepository;
 import com.shopsphere.security.CustomUserDetails;
 import com.shopsphere.service.CartService;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -45,6 +44,7 @@ public class CartServiceImpl implements CartService {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
     }
+
     @Transactional
     @Override
     public void addProductToCart(UUID productId, Integer quantity) {
@@ -65,12 +65,13 @@ public class CartServiceImpl implements CartService {
 
         validateProductStock(product, quantity);
 
-        CartItem cartItem = cartItemRepository
-                .findByCartCartIdAndProductProductId(
-                        cart.getCartId(),
-                        productId
-                )
-                .orElse(null);
+        CartItem cartItem =
+                cartItemRepository
+                        .findByCartCartIdAndProductProductId(
+                                cart.getCartId(),
+                                productId
+                        )
+                        .orElse(null);
 
         if (cartItem != null) {
 
@@ -97,13 +98,13 @@ public class CartServiceImpl implements CartService {
         updateCartTimestamp(cart);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CartResponse getCart() {
 
         UUID userId = getLoggedInUserId();
 
-        Cart cart = cartRepository
-                .findByUserUserId(userId)
+        Cart cart = cartRepository.findByUserUserId(userId)
                 .orElseThrow(() ->
                         new CartOperationException(
                                 "Cart not found for user: " + userId
@@ -134,6 +135,7 @@ public class CartServiceImpl implements CartService {
                 cartTotal
         );
     }
+
     @Transactional
     @Override
     public void updateCartItemQuantity(
@@ -145,20 +147,31 @@ public class CartServiceImpl implements CartService {
 
         UUID userId = getLoggedInUserId();
 
-        CartItem cartItem = getCartItem(cartItemId);
+        CartItem cartItem =
+                getCartItem(cartItemId);
 
-        validateCartOwnership(cartItem, userId);
+        validateCartOwnership(
+                cartItem,
+                userId
+        );
 
-        Product product = cartItem.getProduct();
+        Product product =
+                cartItem.getProduct();
 
-        validateProductStock(product, quantity);
+        validateProductStock(
+                product,
+                quantity
+        );
 
         cartItem.setQuantity(quantity);
 
         cartItemRepository.save(cartItem);
 
-        updateCartTimestamp(cartItem.getCart());
+        updateCartTimestamp(
+                cartItem.getCart()
+        );
     }
+
     @Transactional
     @Override
     public void removeCartItem(UUID cartItemId) {
@@ -167,9 +180,13 @@ public class CartServiceImpl implements CartService {
 
         UUID userId = getLoggedInUserId();
 
-        CartItem cartItem = getCartItem(cartItemId);
+        CartItem cartItem =
+                getCartItem(cartItemId);
 
-        validateCartOwnership(cartItem, userId);
+        validateCartOwnership(
+                cartItem,
+                userId
+        );
 
         Cart cart = cartItem.getCart();
 
@@ -177,14 +194,14 @@ public class CartServiceImpl implements CartService {
 
         updateCartTimestamp(cart);
     }
+
     @Transactional
     @Override
     public void clearCart() {
 
         UUID userId = getLoggedInUserId();
 
-        Cart cart = cartRepository
-                .findByUserUserId(userId)
+        Cart cart = cartRepository.findByUserUserId(userId)
                 .orElseThrow(() ->
                         new CartOperationException(
                                 "Cart not found for user: " + userId
@@ -210,9 +227,9 @@ public class CartServiceImpl implements CartService {
                         .getContext()
                         .getAuthentication();
 
-        if (authentication == null ||
-                !authentication.isAuthenticated() ||
-                !(authentication.getPrincipal()
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || !(authentication.getPrincipal()
                         instanceof CustomUserDetails)) {
 
             throw new CartOperationException(
@@ -225,21 +242,21 @@ public class CartServiceImpl implements CartService {
 
         return userDetails.getUserId();
     }
-    @Transactional
+
     private Cart getOrCreateCart(UUID userId) {
 
         return cartRepository
                 .findByUserUserId(userId)
                 .orElseGet(() -> {
 
-                    User user = userRepository
-                            .findById(userId)
-                            .orElseThrow(() ->
-                                    new CartOperationException(
-                                            "User not found with id: "
-                                                    + userId
-                                    )
-                            );
+                    User user =
+                            userRepository.findById(userId)
+                                    .orElseThrow(() ->
+                                            new CartOperationException(
+                                                    "User not found with id: "
+                                                            + userId
+                                            )
+                                    );
 
                     Cart cart = new Cart();
 
@@ -250,11 +267,10 @@ public class CartServiceImpl implements CartService {
                     return cartRepository.save(cart);
                 });
     }
-    @Transactional
+
     private CartItem getCartItem(UUID cartItemId) {
 
-        return cartItemRepository
-                .findById(cartItemId)
+        return cartItemRepository.findById(cartItemId)
                 .orElseThrow(() ->
                         new CartOperationException(
                                 "Cart item not found with id: "
@@ -262,7 +278,7 @@ public class CartServiceImpl implements CartService {
                         )
                 );
     }
-    @Transactional
+
     private void validateCartOwnership(
             CartItem cartItem,
             UUID userId) {
@@ -277,19 +293,21 @@ public class CartServiceImpl implements CartService {
             );
         }
     }
-    @Transactional
+
     private void validateProductId(UUID productId) {
 
         if (productId == null) {
+
             throw new CartOperationException(
                     "Product ID is required"
             );
         }
     }
-    @Transactional
+
     private void validateCartItemId(UUID cartItemId) {
 
         if (cartItemId == null) {
+
             throw new CartOperationException(
                     "Cart item ID is required"
             );
@@ -299,6 +317,7 @@ public class CartServiceImpl implements CartService {
     private void validateQuantity(Integer quantity) {
 
         if (quantity == null || quantity <= 0) {
+
             throw new CartOperationException(
                     "Quantity must be greater than zero"
             );
@@ -309,16 +328,18 @@ public class CartServiceImpl implements CartService {
             Product product,
             Integer quantity) {
 
-        if (product.getProductStatus() == null ||
-                !product.getProductStatus().name().equals("ACTIVE")) {
+        if (product.getProductStatus() == null
+                || !product.getProductStatus()
+                        .name()
+                        .equals("ACTIVE")) {
 
             throw new CartOperationException(
                     "Product is not available"
             );
         }
 
-        if (product.getProductStock() == null ||
-                product.getProductStock() <= 0) {
+        if (product.getProductStock() == null
+                || product.getProductStock() <= 0) {
 
             throw new CartOperationException(
                     "Product is out of stock"
@@ -326,6 +347,7 @@ public class CartServiceImpl implements CartService {
         }
 
         if (quantity > product.getProductStock()) {
+
             throw new CartOperationException(
                     "Requested quantity exceeds available stock"
             );
@@ -335,7 +357,8 @@ public class CartServiceImpl implements CartService {
     private CartItemResponse mapToCartItemResponse(
             CartItem cartItem) {
 
-        Product product = cartItem.getProduct();
+        Product product =
+                cartItem.getProduct();
 
         BigDecimal itemTotal =
                 product.getProductPrice()
@@ -354,10 +377,12 @@ public class CartServiceImpl implements CartService {
                 itemTotal
         );
     }
-    @Transactional
+
     private void updateCartTimestamp(Cart cart) {
 
-        cart.setUpdatedAt(LocalDateTime.now());
+        cart.setUpdatedAt(
+                LocalDateTime.now()
+        );
 
         cartRepository.save(cart);
     }

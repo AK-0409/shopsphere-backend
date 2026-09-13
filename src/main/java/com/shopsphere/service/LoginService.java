@@ -6,5 +6,6 @@ import com.shopsphere.dto.LoginResponse;
 public interface LoginService {
 
 	LoginResponse login(LoginRequest request);
+	LoginResponse refreshToken(String refreshToken);
 
 }

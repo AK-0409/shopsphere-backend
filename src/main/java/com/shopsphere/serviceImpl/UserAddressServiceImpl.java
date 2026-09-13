@@ -1,8 +1,9 @@
+
 package com.shopsphere.serviceImpl;
 
+import java.util.List;
 import java.util.UUID;
 
-import java.util.List;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import com.shopsphere.dto.UserAddressResponse;
 import com.shopsphere.entity.User;
 import com.shopsphere.entity.UserAddress;
 import com.shopsphere.exception.AddressAccessDeniedException;
+import com.shopsphere.exception.AddressNotFoundException;
+import com.shopsphere.exception.UserNotFoundException;
 import com.shopsphere.repository.UserAddressRepository;
 import com.shopsphere.repository.UserRepository;
 import com.shopsphere.security.CustomUserDetails;
@@ -44,7 +47,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new UserNotFoundException(
                                 "User not found with id: " + userId
                         )
                 );
@@ -66,7 +69,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         userAddressRepository.save(userAddress);
     }
-    
+
     @Override
     public List<UserAddressResponse> getUserAddresses() {
 
@@ -85,6 +88,7 @@ public class UserAddressServiceImpl implements UserAddressService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
     private UserAddressResponse mapToResponse(UserAddress address) {
 
         return new UserAddressResponse(
@@ -101,7 +105,7 @@ public class UserAddressServiceImpl implements UserAddressService {
                 address.isDefault()
         );
     }
-    
+
     @Override
     public UserAddressResponse updateUserAddress(
             UUID addressId,
@@ -118,12 +122,13 @@ public class UserAddressServiceImpl implements UserAddressService {
         UserAddress userAddress =
                 userAddressRepository.findById(addressId)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new AddressNotFoundException(
                                         "Address not found with id: " + addressId
                                 )
                         );
 
         if (!userAddress.getUser().getUserId().equals(userId)) {
+
             throw new AddressAccessDeniedException(
                     "You are not allowed to update this address"
             );
@@ -138,6 +143,7 @@ public class UserAddressServiceImpl implements UserAddressService {
         userAddress.setCountry(request.getCountry());
         userAddress.setPostalCode(request.getPostalCode());
         userAddress.setAddressType(request.getAddressType());
+
         if (request.isDefault()) {
             userAddressRepository.clearDefaultAddress(userId);
         }
@@ -149,7 +155,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
         return mapToResponse(updatedAddress);
     }
-    
+
     @Override
     public void deleteUserAddress(UUID addressId) {
 
@@ -164,12 +170,13 @@ public class UserAddressServiceImpl implements UserAddressService {
         UserAddress userAddress =
                 userAddressRepository.findById(addressId)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new AddressNotFoundException(
                                         "Address not found with id: " + addressId
                                 )
                         );
 
         if (!userAddress.getUser().getUserId().equals(userId)) {
+
             throw new AddressAccessDeniedException(
                     "You are not allowed to delete this address"
             );
