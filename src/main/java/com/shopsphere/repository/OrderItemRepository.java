@@ -11,4 +11,6 @@ public interface OrderItemRepository
         extends JpaRepository<OrderItem, UUID> {
 
     List<OrderItem> findByOrderOrderId(UUID orderId);
+    boolean existsByOrderUserUserIdAndProductProductId( UUID userId, UUID productId );
+    
 }

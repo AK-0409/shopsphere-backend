@@ -32,7 +32,6 @@ import com.shopsphere.exception.ProductNotFoundException;
 import com.shopsphere.exception.StockUpdateConflictException;
 import com.shopsphere.repository.CartItemRepository;
 import com.shopsphere.repository.CartRepository;
-import com.shopsphere.repository.OrderAddressRepository;
 import com.shopsphere.repository.OrderItemRepository;
 import com.shopsphere.repository.OrderRepository;
 import com.shopsphere.repository.ProductRepository;
@@ -46,17 +45,23 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-    private final OrderAddressRepository orderAddressRepository;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
     private final UserAddressRepository userAddressRepository;
     private final UserRepository userRepository;
 
-    public OrderServiceImpl(OrderRepository orderRepository, OrderItemRepository orderItemRepository, OrderAddressRepository orderAddressRepository, CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, UserAddressRepository userAddressRepository, UserRepository userRepository) {
+    public OrderServiceImpl(
+            OrderRepository orderRepository,
+            OrderItemRepository orderItemRepository,
+            CartRepository cartRepository,
+            CartItemRepository cartItemRepository,
+            ProductRepository productRepository,
+            UserAddressRepository userAddressRepository,
+            UserRepository userRepository) {
+
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
-        this.orderAddressRepository = orderAddressRepository;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
@@ -64,8 +69,8 @@ public class OrderServiceImpl implements OrderService {
         this.userRepository = userRepository;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public OrderResponse placeOrder(UUID addressId) {
 
         if (addressId == null) {
@@ -74,20 +79,34 @@ public class OrderServiceImpl implements OrderService {
 
         UUID userId = getLoggedInUserId();
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new CartOperationException("User not found with id: " + userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CartOperationException(
+                        "User not found with id: " + userId
+                ));
 
-        Cart cart = cartRepository.findByUserUserId(userId).orElseThrow(() -> new CartOperationException("Cart not found for user"));
+        Cart cart = cartRepository.findByUserUserId(userId)
+                .orElseThrow(() -> new CartOperationException(
+                        "Cart not found for user"
+                ));
 
-        List<CartItem> cartItems = cartItemRepository.findByCartCartId(cart.getCartId());
+        List<CartItem> cartItems =
+                cartItemRepository.findByCartCartId(cart.getCartId());
 
         if (cartItems.isEmpty()) {
-            throw new CartOperationException("Cannot place order with an empty cart");
+            throw new CartOperationException(
+                    "Cannot place order with an empty cart"
+            );
         }
 
-        UserAddress userAddress = userAddressRepository.findById(addressId).orElseThrow(() -> new AddressNotFoundException("Address not found with id: " + addressId));
+        UserAddress userAddress = userAddressRepository.findById(addressId)
+                .orElseThrow(() -> new AddressNotFoundException(
+                        "Address not found with id: " + addressId
+                ));
 
         if (!userAddress.getUser().getUserId().equals(userId)) {
-            throw new AddressAccessDeniedException("You are not allowed to use this address");
+            throw new AddressAccessDeniedException(
+                    "You are not allowed to use this address"
+            );
         }
 
         for (CartItem cartItem : cartItems) {
@@ -95,15 +114,24 @@ public class OrderServiceImpl implements OrderService {
             Product product = cartItem.getProduct();
 
             if (product.getProductStatus() != ProductStatus.ACTIVE) {
-                throw new CartOperationException("Product is not available: " + product.getProductName());
+                throw new CartOperationException(
+                        "Product is not available: "
+                                + product.getProductName()
+                );
             }
 
-            if (product.getProductStock() == null || product.getProductStock() < cartItem.getQuantity()) {
-                throw new CartOperationException("Insufficient stock for product: " + product.getProductName());
+            if (product.getProductStock() == null
+                    || product.getProductStock() < cartItem.getQuantity()) {
+
+                throw new CartOperationException(
+                        "Insufficient stock for product: "
+                                + product.getProductName()
+                );
             }
         }
 
         Order order = new Order();
+
         order.setUser(user);
         order.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         order.setTotalAmount(BigDecimal.ZERO);
@@ -111,10 +139,8 @@ public class OrderServiceImpl implements OrderService {
         order.setUpdatedAt(LocalDateTime.now());
         order.setCreatedBy(user.getUserEmail());
 
-        order = orderRepository.save(order);
-
         OrderAddress orderAddress = new OrderAddress();
-        orderAddress.setOrder(order);
+
         orderAddress.setFullName(userAddress.getFullName());
         orderAddress.setPhoneNumber(userAddress.getPhoneNumber());
         orderAddress.setAddressLine1(userAddress.getAddressLine1());
@@ -124,19 +150,24 @@ public class OrderServiceImpl implements OrderService {
         orderAddress.setCountry(userAddress.getCountry());
         orderAddress.setPostalCode(userAddress.getPostalCode());
 
-        orderAddressRepository.save(orderAddress);
-
         order.setShippingAddress(orderAddress);
+
+        order = orderRepository.save(order);
 
         BigDecimal totalAmount = BigDecimal.ZERO;
 
         for (CartItem cartItem : cartItems) {
 
             Product product = cartItem.getProduct();
+
             BigDecimal priceAtPurchase = product.getProductPrice();
-            BigDecimal itemTotal = priceAtPurchase.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+
+            BigDecimal itemTotal = priceAtPurchase.multiply(
+                    BigDecimal.valueOf(cartItem.getQuantity())
+            );
 
             OrderItem orderItem = new OrderItem();
+
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setQuantity(cartItem.getQuantity());
@@ -153,11 +184,8 @@ public class OrderServiceImpl implements OrderService {
             product.setUpdatedBy(user.getUserEmail());
 
             try {
-
                 productRepository.saveAndFlush(product);
-
             } catch (ObjectOptimisticLockingFailureException e) {
-
                 throw new StockUpdateConflictException(
                         "Stock was updated by another user. Please try again."
                 );
@@ -174,59 +202,72 @@ public class OrderServiceImpl implements OrderService {
         cartItemRepository.deleteAll(cartItems);
 
         cart.setUpdatedAt(LocalDateTime.now());
+
         cartRepository.save(cart);
 
         return mapToOrderResponse(order);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public OrderResponse getOrderById(UUID orderId) {
 
         UUID userId = getLoggedInUserId();
 
-        Order order = orderRepository.findByOrderIdAndUserUserId(orderId, userId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
+        Order order = orderRepository
+                .findByOrderIdAndUserUserId(orderId, userId)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Order not found with id: " + orderId
+                ));
 
         return mapToOrderResponse(order);
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public List<OrderResponse> getMyOrders() {
 
         UUID userId = getLoggedInUserId();
 
-        List<Order> orders = orderRepository.findByUserUserId(userId);
+        List<Order> orders =
+                orderRepository.findByUserUserId(userId);
 
         return orders.stream()
                 .map(this::mapToOrderResponse)
                 .toList();
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void cancelOrder(UUID orderId) {
 
         UUID userId = getLoggedInUserId();
 
-        Order order = orderRepository.findByOrderIdAndUserUserId(orderId, userId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
+        Order order = orderRepository
+                .findByOrderIdAndUserUserId(orderId, userId)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Order not found with id: " + orderId
+                ));
 
-        if (order.getOrderStatus() == OrderStatus.SHIPPED ||
-                order.getOrderStatus() == OrderStatus.DELIVERED ||
-                order.getOrderStatus() == OrderStatus.CANCELLED) {
+        if (order.getOrderStatus() == OrderStatus.SHIPPED
+                || order.getOrderStatus() == OrderStatus.DELIVERED
+                || order.getOrderStatus() == OrderStatus.CANCELLED) {
 
-            throw new OrderNotFoundException("Order cannot be cancelled in current status: " + order.getOrderStatus());
+            throw new OrderNotFoundException(
+                    "Order cannot be cancelled in current status: "
+                            + order.getOrderStatus()
+            );
         }
 
-        List<OrderItem> orderItems = orderItemRepository.findByOrderOrderId(order.getOrderId());
+        List<OrderItem> orderItems =
+                orderItemRepository.findByOrderOrderId(order.getOrderId());
 
         for (OrderItem orderItem : orderItems) {
 
             Product product = orderItem.getProduct();
 
-            int restoredStock = product.getProductStock() + orderItem.getQuantity();
+            int restoredStock =
+                    product.getProductStock() + orderItem.getQuantity();
 
             product.setProductStock(restoredStock);
             product.setUpdatedAt(LocalDateTime.now());
@@ -244,40 +285,56 @@ public class OrderServiceImpl implements OrderService {
 
     private UUID getLoggedInUserId() {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated() ||
-                !(authentication.getPrincipal() instanceof CustomUserDetails)) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || !(authentication.getPrincipal()
+                        instanceof CustomUserDetails)) {
 
-            throw new CartOperationException("User is not authenticated");
+            throw new CartOperationException(
+                    "User is not authenticated"
+            );
         }
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
 
         return userDetails.getUserId();
     }
 
     private OrderResponse mapToOrderResponse(Order order) {
 
-        OrderAddress orderAddress = orderAddressRepository.findByOrderOrderId(order.getOrderId())
-                .orElseThrow(() -> new OrderNotFoundException("Shipping address not found"));
+        OrderAddress orderAddress = order.getShippingAddress();
 
-        OrderAddressResponse addressResponse = new OrderAddressResponse(
-                orderAddress.getFullName(),
-                orderAddress.getPhoneNumber(),
-                orderAddress.getAddressLine1(),
-                orderAddress.getAddressLine2(),
-                orderAddress.getCity(),
-                orderAddress.getState(),
-                orderAddress.getCountry(),
-                orderAddress.getPostalCode()
-        );
+        if (orderAddress == null) {
+            throw new OrderNotFoundException(
+                    "Shipping address not found"
+            );
+        }
 
-        List<OrderItem> orderItems = orderItemRepository.findByOrderOrderId(order.getOrderId());
+        OrderAddressResponse addressResponse =
+                new OrderAddressResponse(
+                        orderAddress.getFullName(),
+                        orderAddress.getPhoneNumber(),
+                        orderAddress.getAddressLine1(),
+                        orderAddress.getAddressLine2(),
+                        orderAddress.getCity(),
+                        orderAddress.getState(),
+                        orderAddress.getCountry(),
+                        orderAddress.getPostalCode()
+                );
 
-        List<OrderItemResponse> itemResponses = orderItems.stream()
-                .map(this::mapToOrderItemResponse)
-                .toList();
+        List<OrderItem> orderItems =
+                orderItemRepository.findByOrderOrderId(
+                        order.getOrderId()
+                );
+
+        List<OrderItemResponse> itemResponses =
+                orderItems.stream()
+                        .map(this::mapToOrderItemResponse)
+                        .toList();
 
         return new OrderResponse(
                 order.getOrderId(),
@@ -290,12 +347,15 @@ public class OrderServiceImpl implements OrderService {
         );
     }
 
-    private OrderItemResponse mapToOrderItemResponse(OrderItem orderItem) {
+    private OrderItemResponse mapToOrderItemResponse(
+            OrderItem orderItem) {
 
         Product product = orderItem.getProduct();
 
         if (product == null) {
-            throw new ProductNotFoundException("Product not found for order item");
+            throw new ProductNotFoundException(
+                    "Product not found for order item"
+            );
         }
 
         return new OrderItemResponse(

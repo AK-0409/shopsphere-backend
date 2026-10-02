@@ -2,7 +2,12 @@ package com.shopsphere.entity;
 
 import java.util.UUID;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "order_addresses")
@@ -11,10 +16,6 @@ public class OrderAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID orderAddressId;
-
-    @OneToOne
-    @JoinColumn(name = "order_id", nullable = false, unique = true)
-    private Order order;
 
     @Column(nullable = false)
     private String fullName;
@@ -48,14 +49,6 @@ public class OrderAddress {
 
     public void setOrderAddressId(UUID orderAddressId) {
         this.orderAddressId = orderAddressId;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
     }
 
     public String getFullName() {
@@ -122,12 +115,17 @@ public class OrderAddress {
         this.postalCode = postalCode;
     }
 
-	@Override
-	public String toString() {
-		return "OrderAddress [orderAddressId=" + orderAddressId + ", order=" + order + ", fullName=" + fullName
-				+ ", phoneNumber=" + phoneNumber + ", addressLine1=" + addressLine1 + ", addressLine2=" + addressLine2
-				+ ", city=" + city + ", state=" + state + ", country=" + country + ", postalCode=" + postalCode + "]";
-	}
-    
-    
+    @Override
+    public String toString() {
+        return "OrderAddress [orderAddressId=" + orderAddressId
+                + ", fullName=" + fullName
+                + ", phoneNumber=" + phoneNumber
+                + ", addressLine1=" + addressLine1
+                + ", addressLine2=" + addressLine2
+                + ", city=" + city
+                + ", state=" + state
+                + ", country=" + country
+                + ", postalCode=" + postalCode
+                + "]";
+    }
 }

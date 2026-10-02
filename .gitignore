@@ -34,3 +34,6 @@ build/
 
 # Compiled output
 bin/
+
+# Application logs
+logs/

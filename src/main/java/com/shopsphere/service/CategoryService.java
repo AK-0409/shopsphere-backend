@@ -1,18 +1,25 @@
+
 package com.shopsphere.service;
 
-import java.util.List;
 import java.util.UUID;
 
-import org.springframework.stereotype.Service;
-
+import com.shopsphere.dto.CategoryPageResponse;
 import com.shopsphere.dto.CategoryRequest;
 import com.shopsphere.dto.CategoryResponse;
-@Service
+import com.shopsphere.enums.CategoryStatus;
+
 public interface CategoryService {
 
     CategoryResponse addCategory(CategoryRequest request);
 
     CategoryResponse getCategoryById(UUID categoryId);
 
-    List<CategoryResponse> getAllCategories();
+    CategoryPageResponse getAllCategories(
+            int page,
+            int size,
+            String sortBy,
+            String direction,
+            String categoryName,
+            CategoryStatus status
+    );
 }

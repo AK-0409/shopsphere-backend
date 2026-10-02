@@ -13,13 +13,18 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
-@Entity
-@Table(name = "products")
+@Entity @Table( name = "products",
+indexes = { @Index( name = "idx_product_category", columnList = "category_id" ),
+		@Index( name = "idx_product_status", columnList = "product_status" ), 
+		@Index( name = "idx_product_price", columnList = "product_price" ), 
+		@Index( name = "idx_product_created_at", columnList = "created_at" ), 
+		@Index( name = "idx_product_category_status", columnList = "category_id, product_status" ) } )
 public class Product {
 
     @Id

@@ -29,13 +29,16 @@ public class ProductResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+    private Double averageRating;
+    private Long reviewCount;
 
     public ProductResponse() {
     }
 
 	public ProductResponse(UUID productId, String productName, String productDescription, BigDecimal productPrice,
 			Integer productStock, String productImageUrl, ProductStatus productStatus, UUID categoryId,
-			String categoryName, LocalDateTime createdAt, LocalDateTime updatedAt) {
+			String categoryName, LocalDateTime createdAt, LocalDateTime updatedAt, Double averageRating,
+			Long reviewCount) {
 		super();
 		this.productId = productId;
 		this.productName = productName;
@@ -48,7 +51,11 @@ public class ProductResponse {
 		this.categoryName = categoryName;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.averageRating = averageRating;
+		this.reviewCount = reviewCount;
 	}
+
+
 
 	public UUID getProductId() {
 		return productId;
@@ -137,6 +144,23 @@ public class ProductResponse {
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
+	
+
+	public Double getAverageRating() {
+		return averageRating;
+	}
+
+	public void setAverageRating(Double averageRating) {
+		this.averageRating = averageRating;
+	}
+
+	public Long getReviewCount() {
+		return reviewCount;
+	}
+
+	public void setReviewCount(Long reviewCount) {
+		this.reviewCount = reviewCount;
+	}
 
 	@Override
 	public String toString() {
@@ -144,8 +168,11 @@ public class ProductResponse {
 				+ productDescription + ", productPrice=" + productPrice + ", productStock=" + productStock
 				+ ", productImageUrl=" + productImageUrl + ", productStatus=" + productStatus + ", categoryId="
 				+ categoryId + ", categoryName=" + categoryName + ", createdAt=" + createdAt + ", updatedAt="
-				+ updatedAt + "]";
+				+ updatedAt + ", averageRating=" + averageRating + ", reviewCount=" + reviewCount + "]";
 	}
+
+	
+	
 
     
 }

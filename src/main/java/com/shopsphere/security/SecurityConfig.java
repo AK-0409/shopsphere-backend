@@ -1,11 +1,12 @@
+
 package com.shopsphere.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +21,6 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
-    
 
     public SecurityConfig(
             UserDetailsService userDetailsService,
@@ -35,71 +35,100 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
 
-    	http
-        .csrf(csrf -> csrf.disable())
-        .cors(cors -> {})
-        .sessionManagement(session ->
-                session.sessionCreationPolicy(
-                    SessionCreationPolicy.STATELESS
+        http
+                .csrf(csrf -> csrf.disable())
+
+                .cors(cors -> {})
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
                 )
-            )
-            .exceptionHandling(exception ->
-            exception.authenticationEntryPoint(authenticationEntryPoint)
-            		)
-            .authorizeHttpRequests(auth -> auth
 
-            		.requestMatchers(
-            			    "/api/users/register",
-            			    "/api/auth/login",
-            			    "/api/auth/refresh"
-            			).permitAll()
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(
+                                authenticationEntryPoint
+                        )
+                )
 
-            	    .requestMatchers("/api/admin/**")
-            	    .hasRole("ADMIN")
+                .authorizeHttpRequests(auth -> auth
 
-            	    .requestMatchers(
-            	        HttpMethod.POST,
-            	        "/api/products/**"
-            	    )
-            	    .hasRole("ADMIN")
+                        .requestMatchers(
+                                "/api/users/register",
+                                "/api/auth/login",
+                                "/api/auth/refresh",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/actuator/health",
+                                "/actuator/info"
+                        ).permitAll()
 
-            	    .requestMatchers(
-            	        HttpMethod.PATCH,
-            	        "/api/products/**"
-            	    )
-            	    .hasRole("ADMIN")
+                        .requestMatchers(
+                                "/api/admin/**"
+                        ).hasRole("ADMIN")
 
-            	    .requestMatchers(
-            	        HttpMethod.POST,
-            	        "/api/categories/**"
-            	    )
-            	    .hasRole("ADMIN")
-            	    
-            	    .requestMatchers(
-            	    	HttpMethod.GET,
-            	    	"/api/users"
-            	    	)
-            	    	.hasRole("ADMIN")
-            	    	
-            	    	.requestMatchers(
-            	    		    HttpMethod.GET,
-            	    		    "/api/products/**",
-            	    		    "/api/categories/**"
-            	    		).permitAll()
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/products/**"
+                        ).hasRole("ADMIN")
 
-            	    .anyRequest()
-            	    .authenticated()
-            	)
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/products/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/categories/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/users"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/products/**",
+                                "/api/categories/**"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/reviews/**"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/reviews"
+                        ).authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/reviews/**"
+                        ).authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/reviews/**"
+                        ).authenticated()
+
+                        .anyRequest().authenticated()
+                )
+
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
 
@@ -112,10 +141,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration)
-            throws Exception {
+    public AuthenticationManager authenticationManager() {
 
-        return configuration.getAuthenticationManager();
+        return new ProviderManager(authenticationProvider());
     }
 }

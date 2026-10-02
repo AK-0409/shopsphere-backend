@@ -12,10 +12,17 @@ import com.shopsphere.dto.LoginResponse;
 import com.shopsphere.dto.RefreshTokenRequest;
 import com.shopsphere.service.LoginService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(
+    name = "Authentication",
+    description = "APIs for user authentication and JWT token management"
+)
 public class LoginController {
 
     private final LoginService loginService;
@@ -25,21 +32,27 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody LoginRequest request) {
+    @Operation(
+        summary = "User login",
+        description = "Authenticates a user using their credentials and returns access and refresh tokens."
+    )
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
 
         LoginResponse response = loginService.login(request);
 
-        return ResponseEntity.status(HttpStatus.OK) .body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    
-    @PostMapping("/refresh")
-    public ResponseEntity<LoginResponse> refreshToken(
-            @RequestBody RefreshTokenRequest request) {
 
-        LoginResponse response =
-                loginService.refreshToken(request.getRefreshToken());
+    @PostMapping("/refresh")
+    @Operation(
+        summary = "Refresh access token",
+        description = "Generates a new access token using a valid refresh token."
+    )
+    public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+
+        LoginResponse response = loginService.refreshToken(request.getRefreshToken());
 
         return ResponseEntity.ok(response);
     }
 }
+
