@@ -45,7 +45,6 @@ import com.shopsphere.exception.StockUpdateConflictException;
 
 import com.shopsphere.repository.CartItemRepository;
 import com.shopsphere.repository.CartRepository;
-import com.shopsphere.repository.OrderAddressRepository;
 import com.shopsphere.repository.OrderItemRepository;
 import com.shopsphere.repository.OrderRepository;
 import com.shopsphere.repository.ProductRepository;
@@ -63,9 +62,6 @@ class OrderServiceImplTest {
 
     @Mock
     private OrderItemRepository orderItemRepository;
-
-    @Mock
-    private OrderAddressRepository orderAddressRepository;
 
     @Mock
     private CartRepository cartRepository;
@@ -203,6 +199,9 @@ class OrderServiceImplTest {
         orderItem.setPriceAtPurchase(new BigDecimal("50000"));
         orderItem.setItemTotal(new BigDecimal("100000"));
 
+        order.setShippingAddress(createOrderAddress());
+        order.setOrderItems(List.of(orderItem));
+
 
         // -------------------------
         // Mock logged-in user
@@ -249,31 +248,13 @@ class OrderServiceImplTest {
 
                     return savedOrder;
                 });
-
-        when(orderAddressRepository.save(any(OrderAddress.class)))
-                .thenAnswer(invocation ->
-                        invocation.getArgument(0));
-
         when(orderItemRepository.save(any(OrderItem.class)))
                 .thenAnswer(invocation ->
                         invocation.getArgument(0));
 
         when(productRepository.saveAndFlush(any(Product.class)))
                 .thenAnswer(invocation ->
-                        invocation.getArgument(0));
-
-        when(orderAddressRepository
-                .findByOrderOrderId(orderId))
-                .thenReturn(Optional.of(
-                        createOrderAddress()
-                ));
-
-        when(orderItemRepository
-                .findByOrderOrderId(orderId))
-                .thenReturn(List.of(orderItem));
-
-
-        var response =
+                        invocation.getArgument(0));        var response =
                 orderService.placeOrder(addressId);
 
 
@@ -503,11 +484,6 @@ class OrderServiceImplTest {
         when(orderRepository.save(any(Order.class)))
                 .thenAnswer(invocation ->
                         invocation.getArgument(0));
-
-        when(orderAddressRepository.save(any(OrderAddress.class)))
-                .thenAnswer(invocation ->
-                        invocation.getArgument(0));
-
         when(orderItemRepository.save(any(OrderItem.class)))
                 .thenAnswer(invocation ->
                         invocation.getArgument(0));
@@ -542,20 +518,7 @@ class OrderServiceImplTest {
                         orderId,
                         userId
                 ))
-                .thenReturn(Optional.of(order));
-
-        when(orderAddressRepository
-                .findByOrderOrderId(orderId))
-                .thenReturn(Optional.of(
-                        createOrderAddress()
-                ));
-
-        when(orderItemRepository
-                .findByOrderOrderId(orderId))
-                .thenReturn(List.of(orderItem));
-
-
-        var response =
+                .thenReturn(Optional.of(order));        var response =
                 orderService.getOrderById(orderId);
 
 
@@ -616,9 +579,7 @@ class OrderServiceImplTest {
                 ))
                 .thenReturn(Optional.of(order));
 
-        when(orderItemRepository
-                .findByOrderOrderId(orderId))
-                .thenReturn(List.of(orderItem));
+    
 
 
         orderService.cancelOrder(orderId);
@@ -680,7 +641,6 @@ class OrderServiceImplTest {
         OrderAddress orderAddress =
                 new OrderAddress();
 
-        orderAddress.setOrder(order);
         orderAddress.setFullName(
                 "Test User"
         );

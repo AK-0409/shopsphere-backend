@@ -138,7 +138,13 @@ public class AdminOrderServiceImpl implements AdminOrderService {
                 orderAddress.getPostalCode()
         );
 
-        List<OrderItem> orderItems = orderItemRepository.findByOrderOrderId(order.getOrderId());
+        List<OrderItem> orderItems = order.getOrderItems();
+
+        if (orderItems == null) {
+            orderItems = orderItemRepository.findByOrderOrderId(
+                    order.getOrderId()
+            );
+        }
 
         List<OrderItemResponse> itemResponses = orderItems.stream()
                 .map(this::mapToOrderItemResponse)

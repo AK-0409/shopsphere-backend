@@ -3,7 +3,14 @@ package com.shopsphere.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "carts")
@@ -13,7 +20,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID cartId;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
@@ -55,12 +62,4 @@ public class Cart {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-	@Override
-	public String toString() {
-		return "Cart [cartId=" + cartId + ", user=" + user + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt
-				+ "]";
-	}
-    
-    
 }

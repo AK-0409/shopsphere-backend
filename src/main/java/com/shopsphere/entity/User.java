@@ -8,67 +8,111 @@ import com.shopsphere.enums.AccountStatus;
 import com.shopsphere.enums.Role;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_user_email",
+                        columnNames = "user_email"
+                )
+        },
+        indexes = {
+                @Index(
+                        name = "idx_user_account_status",
+                        columnList = "user_account_status"
+                )
+        }
+)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID userId;
 
+    @Column(nullable = false, length = 50)
     private String userFirstName;
+
+    @Column(length = 50)
     private String userSecondName;
+
+    @Column(nullable = false, length = 254)
     private String userEmail;
+
+    @Column(nullable = false)
     private String userPassword;
+
+    @Column(nullable = false, length = 15)
     private String userPhoneNumber;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role userRole;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AccountStatus userAccountStatus;
+
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
+
     private String createdBy;
+
     private String updatedBy;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<UserAddress> addresses;
 
     public User() {
-        super();
     }
 
-   
+    public User(
+            UUID userId,
+            String userFirstName,
+            String userSecondName,
+            String userEmail,
+            String userPassword,
+            String userPhoneNumber,
+            Role userRole,
+            AccountStatus userAccountStatus,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt,
+            String createdBy,
+            String updatedBy) {
 
-    public User(UUID userId, String userFirstName, String userSecondName, String userEmail, String userPassword,
-			String userPhoneNumber, Role userRole, AccountStatus userAccountStatus, LocalDateTime createdAt,
-			LocalDateTime updatedAt, String createdBy, String updatedBy) {
-		super();
-		this.userId = userId;
-		this.userFirstName = userFirstName;
-		this.userSecondName = userSecondName;
-		this.userEmail = userEmail;
-		this.userPassword = userPassword;
-		this.userPhoneNumber = userPhoneNumber;
-		this.userRole = userRole;
-		this.userAccountStatus = userAccountStatus;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-		this.createdBy = createdBy;
-		this.updatedBy = updatedBy;
-	}
+        this.userId = userId;
+        this.userFirstName = userFirstName;
+        this.userSecondName = userSecondName;
+        this.userEmail = userEmail;
+        this.userPassword = userPassword;
+        this.userPhoneNumber = userPhoneNumber;
+        this.userRole = userRole;
+        this.userAccountStatus = userAccountStatus;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
+    }
 
-
-
-	public UUID getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
@@ -163,29 +207,12 @@ public class User {
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
     }
-    
+
     public List<UserAddress> getAddresses() {
-		return addresses;
-	}
+        return addresses;
+    }
 
-	public void setAddresses(List<UserAddress> addresses) {
-		this.addresses = addresses;
-	}
-
-
-
-	@Override
-    public String toString() {
-        return "User [userId=" + userId
-                + ", userFirstName=" + userFirstName
-                + ", userSecondName=" + userSecondName
-                + ", userEmail=" + userEmail
-                + ", userPhoneNumber=" + userPhoneNumber
-                + ", userRole=" + userRole
-                + ", userAccountStatus=" + userAccountStatus
-                + ", createdAt=" + createdAt
-                + ", updatedAt=" + updatedAt
-                + ", createdBy=" + createdBy
-                + ", updatedBy=" + updatedBy + "]";
+    public void setAddresses(List<UserAddress> addresses) {
+        this.addresses = addresses;
     }
 }

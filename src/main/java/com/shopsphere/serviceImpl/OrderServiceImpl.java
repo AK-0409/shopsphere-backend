@@ -2,6 +2,7 @@ package com.shopsphere.serviceImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -155,6 +156,7 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepository.save(order);
 
         BigDecimal totalAmount = BigDecimal.ZERO;
+        List<OrderItem> orderItems = new ArrayList<>();
 
         for (CartItem cartItem : cartItems) {
 
@@ -175,6 +177,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setItemTotal(itemTotal);
 
             orderItemRepository.save(orderItem);
+            orderItems.add(orderItem);
 
             int remainingStock =
                     product.getProductStock() - cartItem.getQuantity();
@@ -194,6 +197,7 @@ public class OrderServiceImpl implements OrderService {
             totalAmount = totalAmount.add(itemTotal);
         }
 
+        order.setOrderItems(orderItems);
         order.setTotalAmount(totalAmount);
         order.setUpdatedAt(LocalDateTime.now());
 
@@ -230,7 +234,7 @@ public class OrderServiceImpl implements OrderService {
         UUID userId = getLoggedInUserId();
 
         List<Order> orders =
-                orderRepository.findByUserUserId(userId);
+                orderRepository.findByUserUserIdOrderByCreatedAtDesc(userId);
 
         return orders.stream()
                 .map(this::mapToOrderResponse)
@@ -259,8 +263,13 @@ public class OrderServiceImpl implements OrderService {
             );
         }
 
-        List<OrderItem> orderItems =
-                orderItemRepository.findByOrderOrderId(order.getOrderId());
+        List<OrderItem> orderItems = order.getOrderItems();
+
+        if (orderItems == null) {
+            orderItems = orderItemRepository.findByOrderOrderId(
+                    order.getOrderId()
+            );
+        }
 
         for (OrderItem orderItem : orderItems) {
 
@@ -326,10 +335,13 @@ public class OrderServiceImpl implements OrderService {
                         orderAddress.getPostalCode()
                 );
 
-        List<OrderItem> orderItems =
-                orderItemRepository.findByOrderOrderId(
-                        order.getOrderId()
-                );
+        List<OrderItem> orderItems = order.getOrderItems();
+
+        if (orderItems == null) {
+            orderItems = orderItemRepository.findByOrderOrderId(
+                    order.getOrderId()
+            );
+        }
 
         List<OrderItemResponse> itemResponses =
                 orderItems.stream()

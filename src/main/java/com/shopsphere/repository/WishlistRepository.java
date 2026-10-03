@@ -1,10 +1,10 @@
-
 package com.shopsphere.repository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.shopsphere.entity.Wishlist;
@@ -22,6 +22,7 @@ public interface WishlistRepository
             UUID productId
     );
 
+    @EntityGraph(attributePaths = "product")
     List<Wishlist> findByUserUserIdOrderByCreatedAtDesc(
             UUID userId
     );
@@ -31,4 +32,3 @@ public interface WishlistRepository
             UUID productId
     );
 }
-

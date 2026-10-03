@@ -1,6 +1,8 @@
 package com.shopsphere.serviceImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -16,13 +18,16 @@ public class LoginServiceImpl implements LoginService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
     public LoginServiceImpl(
             AuthenticationManager authenticationManager,
-            JwtService jwtService) {
+            JwtService jwtService,
+            UserDetailsService userDetailsService) {
 
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -72,6 +77,15 @@ public class LoginServiceImpl implements LoginService {
         }
 
         String username = jwtService.extractUsername(refreshToken);
+
+        UserDetails userDetails =
+                userDetailsService.loadUserByUsername(username);
+
+        if (!userDetails.isEnabled()) {
+            throw new InvalidCredentialsException(
+                    "User account is not active"
+            );
+        }
 
         String newAccessToken =
                 jwtService.generateAccessToken(username);

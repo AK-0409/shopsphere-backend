@@ -6,15 +6,38 @@ import java.util.UUID;
 
 import com.shopsphere.enums.PaymentStatus;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "payments")
+@Table(
+        name = "payments",
+        indexes = {
+                @Index(
+                        name = "idx_payment_status",
+                        columnList = "payment_status"
+                )
+        }
+)
 public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID paymentId;
+
+    @Version
+    private Long version;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false, unique = true)
@@ -27,9 +50,10 @@ public class Payment {
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String paymentMethod;
 
+    @Column(unique = true)
     private String transactionId;
 
     @Column(nullable = false)
@@ -103,13 +127,4 @@ public class Payment {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-	@Override
-	public String toString() {
-		return "Payment [paymentId=" + paymentId + ", order=" + order + ", amount=" + amount + ", paymentStatus="
-				+ paymentStatus + ", paymentMethod=" + paymentMethod + ", transactionId=" + transactionId
-				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
-	}
-    
-    
 }

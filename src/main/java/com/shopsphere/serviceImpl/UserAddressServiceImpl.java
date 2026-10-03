@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.shopsphere.dto.UserAddressRequest;
 import com.shopsphere.dto.UserAddressResponse;
@@ -21,6 +22,7 @@ import com.shopsphere.security.CustomUserDetails;
 import com.shopsphere.service.UserAddressService;
 
 @Service
+@Transactional
 public class UserAddressServiceImpl implements UserAddressService {
 
     private final UserAddressRepository userAddressRepository;
@@ -52,6 +54,10 @@ public class UserAddressServiceImpl implements UserAddressService {
                         )
                 );
 
+        if (request.isDefault()) {
+            userAddressRepository.clearDefaultAddress(userId);
+        }
+
         UserAddress userAddress = new UserAddress();
 
         userAddress.setFullName(request.getFullName());
@@ -71,6 +77,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserAddressResponse> getUserAddresses() {
 
         Authentication authentication =

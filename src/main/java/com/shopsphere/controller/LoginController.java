@@ -48,7 +48,7 @@ public class LoginController {
         summary = "Refresh access token",
         description = "Generates a new access token using a valid refresh token."
     )
-    public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<LoginResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
 
         LoginResponse response = loginService.refreshToken(request.getRefreshToken());
 

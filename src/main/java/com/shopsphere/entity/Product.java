@@ -10,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,12 +20,28 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
-@Entity @Table( name = "products",
-indexes = { @Index( name = "idx_product_category", columnList = "category_id" ),
-		@Index( name = "idx_product_status", columnList = "product_status" ), 
-		@Index( name = "idx_product_price", columnList = "product_price" ), 
-		@Index( name = "idx_product_created_at", columnList = "created_at" ), 
-		@Index( name = "idx_product_category_status", columnList = "category_id, product_status" ) } )
+@Entity
+@Table(
+        name = "products",
+        indexes = {
+                @Index(
+                        name = "idx_product_status",
+                        columnList = "product_status"
+                ),
+                @Index(
+                        name = "idx_product_price",
+                        columnList = "product_price"
+                ),
+                @Index(
+                        name = "idx_product_created_at",
+                        columnList = "created_at"
+                ),
+                @Index(
+                        name = "idx_product_category_status",
+                        columnList = "category_id, product_status"
+                )
+        }
+)
 public class Product {
 
     @Id
@@ -42,7 +59,7 @@ public class Product {
 
     @Column(nullable = false)
     private Integer productStock;
-    
+
     @Version
     private Long version;
 
@@ -52,7 +69,7 @@ public class Product {
     @Column(nullable = false)
     private ProductStatus productStatus;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
@@ -68,135 +85,135 @@ public class Product {
     public Product() {
     }
 
-	public Product(UUID productId, String productName, String productDescription, BigDecimal productPrice,
-			Integer productStock, String productImageUrl, ProductStatus productStatus, Category category,
-			LocalDateTime createdAt, LocalDateTime updatedAt, String createdBy, String updatedBy) {
-		super();
-		this.productId = productId;
-		this.productName = productName;
-		this.productDescription = productDescription;
-		this.productPrice = productPrice;
-		this.productStock = productStock;
-		this.productImageUrl = productImageUrl;
-		this.productStatus = productStatus;
-		this.category = category;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-		this.createdBy = createdBy;
-		this.updatedBy = updatedBy;
-	}
+    public Product(
+            UUID productId,
+            String productName,
+            String productDescription,
+            BigDecimal productPrice,
+            Integer productStock,
+            String productImageUrl,
+            ProductStatus productStatus,
+            Category category,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt,
+            String createdBy,
+            String updatedBy) {
 
-	public UUID getProductId() {
-		return productId;
-	}
+        this.productId = productId;
+        this.productName = productName;
+        this.productDescription = productDescription;
+        this.productPrice = productPrice;
+        this.productStock = productStock;
+        this.productImageUrl = productImageUrl;
+        this.productStatus = productStatus;
+        this.category = category;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
+    }
 
-	public void setProductId(UUID productId) {
-		this.productId = productId;
-	}
+    public UUID getProductId() {
+        return productId;
+    }
 
-	public String getProductName() {
-		return productName;
-	}
+    public void setProductId(UUID productId) {
+        this.productId = productId;
+    }
 
-	public void setProductName(String productName) {
-		this.productName = productName;
-	}
+    public String getProductName() {
+        return productName;
+    }
 
-	public String getProductDescription() {
-		return productDescription;
-	}
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
 
-	public void setProductDescription(String productDescription) {
-		this.productDescription = productDescription;
-	}
+    public String getProductDescription() {
+        return productDescription;
+    }
 
-	public BigDecimal getProductPrice() {
-		return productPrice;
-	}
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
+    }
 
-	public void setProductPrice(BigDecimal productPrice) {
-		this.productPrice = productPrice;
-	}
+    public BigDecimal getProductPrice() {
+        return productPrice;
+    }
 
-	public Integer getProductStock() {
-		return productStock;
-	}
+    public void setProductPrice(BigDecimal productPrice) {
+        this.productPrice = productPrice;
+    }
 
-	public void setProductStock(Integer productStock) {
-		this.productStock = productStock;
-	}
-	
-	public Long getVersion() {
-		return version;
-	}
+    public Integer getProductStock() {
+        return productStock;
+    }
 
-	public void setVersion(Long version) {
-		this.version = version;
-	}
+    public void setProductStock(Integer productStock) {
+        this.productStock = productStock;
+    }
 
-	public String getProductImageUrl() {
-		return productImageUrl;
-	}
+    public Long getVersion() {
+        return version;
+    }
 
-	public void setProductImageUrl(String productImageUrl) {
-		this.productImageUrl = productImageUrl;
-	}
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 
-	public ProductStatus getProductStatus() {
-		return productStatus;
-	}
+    public String getProductImageUrl() {
+        return productImageUrl;
+    }
 
-	public void setProductStatus(ProductStatus productStatus) {
-		this.productStatus = productStatus;
-	}
+    public void setProductImageUrl(String productImageUrl) {
+        this.productImageUrl = productImageUrl;
+    }
 
-	public Category getCategory() {
-		return category;
-	}
+    public ProductStatus getProductStatus() {
+        return productStatus;
+    }
 
-	public void setCategory(Category category) {
-		this.category = category;
-	}
+    public void setProductStatus(ProductStatus productStatus) {
+        this.productStatus = productStatus;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public Category getCategory() {
+        return category;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	public String getCreatedBy() {
-		return createdBy;
-	}
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
-	public String getUpdatedBy() {
-		return updatedBy;
-	}
+    public String getCreatedBy() {
+        return createdBy;
+    }
 
-	public void setUpdatedBy(String updatedBy) {
-		this.updatedBy = updatedBy;
-	}
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
 
-	@Override
-	public String toString() {
-		return "Product [productId=" + productId + ", productName=" + productName + ", productDescription="
-				+ productDescription + ", productPrice=" + productPrice + ", productStock=" + productStock
-				+ ", productImageUrl=" + productImageUrl + ", productStatus=" + productStatus + ", category=" + category
-				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", createdBy=" + createdBy + ", updatedBy="
-				+ updatedBy + "]";
-	}
-    	
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
 }
